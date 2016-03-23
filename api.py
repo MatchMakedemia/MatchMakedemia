@@ -3,6 +3,7 @@
 
 import orcid
 from py2neo import Graph, Node, Relationship, authenticate
+import sys
 
 # oew1v07's Public API key and secret. Will need to be changed if oew1v07 leaves
 # group at any time according to orcid T&Cs
@@ -87,10 +88,12 @@ class API(object):
 				# We have to check whether the keyword node already exists and if so 
 				# then link to that.
 
+				# Get handle for the None keyword
+				none = self.graph.find_one("Keyword", property_key="value", 
+										   property_value="None")
+
 				if keywords is None:
 					# create a relationship with the keyword none
-					none = Node("Keyword", value = "None")
-
 					rel = Relationship(person, "HAS", none)
 					self.graph.create(rel)
 				else:
@@ -99,21 +102,39 @@ class API(object):
 					key_nodes = []
 					for i in list_keywords:
 						# Create keyword node
-						new = Node("Keyword", value = i)
+						handle = new_api.graph.find_one("Keyword", property_key="value", property_value="i")
+						if handle:
+							rel = Relationship(person, "HAS", handle)
+						else:
+							new = Node("Keyword", value = i)
+							self.graph.create(new)
+							rel = Relationship(person, "HAS", new)
 
 						# Create relationship with person
-						rel = Relationship(person, "HAS", new)
 						self.graph.create(rel)
 
 				# Create institution node
 				institution_name = "University of " + self.query
 
-				institution = Node("Institution", value = institution_name)
+				inst_handle = new_api.graph.find_one("Institution",
+													 property_key="value",
+													 property_value=institution_name)
 
-				self.graph.create(institution)
+				if inst_handle:
+					rel2 = Relationship(person, "ISMEMBEROF", inst_handle)
+				else:
+					institution = Node("Institution", value = institution_name)
+					self.graph.create(institution)
+					rel2 = Relationship(person, "ISMEMBEROF", inst_handle)
 				# Create a relationship of ISMEMBEROF with person and institution
-				rel2 = Relationship(person, "ISMEMBEROF", institution)
-				self.graph.create(institution)
+				
+				self.graph.create(rel2)
+
+def run_class(query):
+	api = API()
+	api.search(query)
+	api.store_results()
+
 
 # graph.cypher.execute("MATCH (p:person) RETURN p.name AS name")
 
