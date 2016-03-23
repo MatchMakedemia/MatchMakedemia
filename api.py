@@ -116,7 +116,7 @@ class API(object):
 				# Create institution node
 				institution_name = "University of " + self.query
 
-				inst_handle = new_api.graph.find_one("Institution",
+				inst_handle = self.graph.find_one("Institution",
 													 property_key="value",
 													 property_value=institution_name)
 
