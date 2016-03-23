@@ -2,7 +2,7 @@
 # Remember to be in the right email
 
 import orcid
-from py2neo import Graph, Node, Relationship
+from py2neo import Graph, Node, Relationship, authenticate
 
 # oew1v07's Public API key and secret. Will need to be changed if oew1v07 leaves
 # group at any time according to orcid T&Cs
@@ -24,7 +24,8 @@ class API(object):
 		self.P_api = orcid.PublicAPI(KEY, SECRET)
 
 	def connect_db(self):
-		self.graph = Graph("http://{u}:{p}@localhost:7474/db/data".format(u=db_user, p=db_passwd))
+		authenticate("localhost:7474", db_user, db_passwd)
+		self.graph = Graph("http://localhost:7474/db/data")
 
 	def search(self, query):
 		"""Searches for a specific phrase within orcid-bio returning a generator
@@ -59,37 +60,60 @@ class API(object):
 		for i in range(self.num_returned):
 			next_res = next(self.result_generator)
 
-			bio = next_res["orcid-profile"]["orcid-bio"]
-
-			# This is a dict inside a list inside a dict inside a dict.
-			# It returns a string of each of the keywords
-			if bio["keywords"] is None:
-				keywords = None
+			if bio is None:
+				pass
 			else:
-				keywords = bio["keywords"]["keyword"][0]["value"]
+				bio = next_res["orcid-profile"]["orcid-bio"]
 
-			given_name = bio["personal-details"]["given-names"]["value"]
-			family_name = bio["personal-details"]["family-name"]["value"]
-			name = given_name + " " + family_name
+				# This is a dict inside a list inside a dict inside a dict.
+				# It returns a string of each of the keywords
+				if bio["keywords"] is None:
+					keywords = None
+				else:
+					keywords = bio["keywords"]["keyword"][0]["value"]
 
-			# orcid path is the orcid ID which can be joined with BASEPATH to get
-			# URL of profile
-			orcid_path = next_res["orcid-profile"]["orcid-identifier"]["path"]
+				given_name = bio["personal-details"]["given-names"]["value"]
+				family_name = bio["personal-details"]["family-name"]["value"]
+				name = given_name + " " + family_name
 
-		# Always remember to create after each node!!!!!
-		# Create the person node
-		person = Node("Person", name = name, orcid = orcid_path)
-		graph.create(person)
-		# We have to check whether the keyword node already exists and if so 
-		# then link to that.
+				# orcid path is the orcid ID which can be joined with BASEPATH to get
+				# URL of profile
+				orcid_path = next_res["orcid-profile"]["orcid-identifier"]["path"]
 
+				# Always remember to create after each node!!!!!
+				# Create the person node
+				person = Node("Person", name = name, orcid = orcid_path)
+				self.graph.create(person)
+				# We have to check whether the keyword node already exists and if so 
+				# then link to that.
 
+				if keywords is None:
+					# create a relationship with the keyword none
+					none = Node("Keyword", value = "None")
 
+					rel = Relationship(person, "HAS", none)
+					self.graph.create(rel)
+				else:
+					list_keywords = keywords.split(",")
 
-		# Create institution node
+					key_nodes = []
+					for i in list_keywords:
+						# Create keyword node
+						new = Node("Keyword", value = i)
 
-		# Create a relationship of ISMEMBEROF with person and institution
+						# Create relationship with person
+						rel = Relationship(person, "HAS", new)
+						self.graph.create(rel)
 
+				# Create institution node
+				institution_name = "University of " + self.query
 
-		# We want in our schema names, keywords, orcid ID for the beginning
+				institution = Node("Institution", value = institution_name)
+
+				self.graph.create(institution)
+				# Create a relationship of ISMEMBEROF with person and institution
+				rel2 = Relationship(person, "ISMEMBEROF", institution)
+				self.graph.create(institution)
+
+# graph.cypher.execute("MATCH (p:person) RETURN p.name AS name")
 
