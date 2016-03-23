@@ -61,11 +61,11 @@ class API(object):
 		for i in range(self.num_returned):
 			next_res = next(self.result_generator)
 
+			bio = next_res["orcid-profile"]["orcid-bio"]
+
 			if bio is None:
 				pass
 			else:
-				bio = next_res["orcid-profile"]["orcid-bio"]
-
 				# This is a dict inside a list inside a dict inside a dict.
 				# It returns a string of each of the keywords
 				if bio["keywords"] is None:
@@ -134,6 +134,7 @@ def run_class(query):
 	api = API()
 	api.search(query)
 	api.store_results()
+	return api
 
 
 # graph.cypher.execute("MATCH (p:person) RETURN p.name AS name")
