@@ -94,7 +94,13 @@ class API(object):
 
 				if keywords is None:
 					# create a relationship with the keyword none
-					rel = Relationship(person, "HAS", none)
+					print(keywords)
+					if none:
+						rel = Relationship(person, "HAS", none)
+					else:
+						new = Node("Keyword", value = i)
+						rel = Relationship(person, "HAS", new)
+					print(rel)
 					self.graph.create(rel)
 				else:
 					list_keywords = keywords.split(",")
@@ -102,9 +108,10 @@ class API(object):
 					key_nodes = []
 					for i in list_keywords:
 						# Create keyword node
-						handle = new_api.graph.find_one("Keyword", property_key="value", property_value="i")
+						handle = self.graph.find_one("Keyword", property_key="value", property_value=i)
 						if handle:
 							rel = Relationship(person, "HAS", handle)
+							print(handle)
 						else:
 							new = Node("Keyword", value = i)
 							self.graph.create(new)
@@ -125,7 +132,7 @@ class API(object):
 				else:
 					institution = Node("Institution", value = institution_name)
 					self.graph.create(institution)
-					rel2 = Relationship(person, "ISMEMBEROF", inst_handle)
+					rel2 = Relationship(person, "ISMEMBEROF", institution)
 				# Create a relationship of ISMEMBEROF with person and institution
 				
 				self.graph.create(rel2)
