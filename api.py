@@ -9,8 +9,8 @@ SECRET = "bde7e6b4-f633-4e4b-b749-4efc855fb797"
 
 class API(object):
 
-	def __init__():
-		pass
+	def __init__(self):
+		self.connect()
 	
 	def connect(self):
 		"""Connects to the orcid api to provide handle for searching"""
