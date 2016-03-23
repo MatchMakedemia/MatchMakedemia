@@ -1,9 +1,8 @@
-This file explains what needs to be done for the Collaborations Workshop Hackday (23 March 2016)
+This file explains things which could be done/added to the project.
 
-1. Decide what it is that we're trying to do
-2. Capture that in the README.md file
-3. Connect to the ORCID public API 
-4. Download data from ORCID for three UK universities as proof of concept
-5. Develop UI prototype
-6. Complete documentation in repo as we go along
-7. Develop presentation
+1.  The graph database visualisation could be done in browser - several ways to do this
+2.  Always need new sources of info to connect Person nodes in the graph...  preferably which use ORCID IDs.
+    If you have an idea contact us and we will see how we can add it to our graph.
+3.  We need ideas to build/improve the reccommendation engine - if you know anything about machine learning or want to learn, get involved!
+4.  The python code could be worked into a web app.
+5.  Working UI could be created.
