@@ -1,4 +1,4 @@
-#Welcome to the MatchMakedemia Contriuters'Page! 
+#Welcome to the MatchMakedemia Contributers' Page! 
 
 We welcome contributions and fixes to the project.  
 
@@ -10,5 +10,8 @@ We welcome contributions and fixes to the project.
 
 ##Suggest a bug fix
 
+To be completed...
 
 ##Suggest a new feature
+
+To be completed...
