@@ -8,7 +8,6 @@ import sys
 # oew1v07's Public API key and secret. Will need to be changed if oew1v07 leaves
 # group at any time according to orcid T&Cs
 KEY = "APP-RQFHFHDT5CO7FZDN"
-SECRET = "bde7e6b4-f633-4e4b-b749-4efc855fb797"
 BASEPATH = "http://orchid.org/"
 db_user = "neo4j"
 db_passwd = "match2016"
