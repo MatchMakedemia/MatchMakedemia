@@ -4,13 +4,13 @@
 import orcid
 from py2neo import Graph, Node, Relationship, authenticate
 import sys
+from keys import SECRET, db_passwd
 
 # oew1v07's Public API key and secret. Will need to be changed if oew1v07 leaves
 # group at any time according to orcid T&Cs
 KEY = "APP-RQFHFHDT5CO7FZDN"
 BASEPATH = "http://orchid.org/"
 db_user = "neo4j"
-db_passwd = "match2016"
 
 
 class API(object):
@@ -72,8 +72,19 @@ class API(object):
 				else:
 					keywords = bio["keywords"]["keyword"][0]["value"]
 
-				given_name = bio["personal-details"]["given-names"]["value"]
-				family_name = bio["personal-details"]["family-name"]["value"]
+				given = bio["personal-details"]["given-names"]
+
+				if given:
+					given_name = given["value"]
+				else:
+					given_name = ""
+
+				family = bio["personal-details"]["family-name"]
+
+				if family:
+					family_name = family["value"]
+				else:
+					family_name = ""
 				name = given_name + " " + family_name
 
 				# orcid path is the orcid ID which can be joined with BASEPATH to get
@@ -93,25 +104,24 @@ class API(object):
 
 				if keywords is None:
 					# create a relationship with the keyword none
-					print(none)
 					if none:
 						rel = Relationship(person, "HAS", none)
 					else:
 						new = Node("Keyword", value = "None")
 						rel = Relationship(person, "HAS", new)
-					print(rel)
+
 					self.graph.create(rel)
+
 				else:
 					list_keywords = keywords.split(",")
 
 					key_nodes = []
-					
+
 					for j in list_keywords:
 						# Create keyword node
 						handle = self.graph.find_one("Keyword", property_key="value", property_value=j)
 						if handle:
 							rel = Relationship(person, "HAS", handle)
-							print(handle)
 						else:
 							new = Node("Keyword", value = j)
 							self.graph.create(new)
